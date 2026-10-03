@@ -6,6 +6,7 @@
   "author": "Andrés Felipe Perdomo <alvarado0925@gmail.com>",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.30.0",
   "scripts": {
     "lint": "prettier --write \"**/*.{js,ts,vue,css,scss,html,md,json}\" --ignore-path .gitignore && eslint --fix -c ./eslint.config.js \"./src*/**/*.{ts,js,cjs,mjs,vue}\"",
     "lint:check": "prettier \"**/*.{js,ts,vue,css,scss,html,md,json}\" --ignore-path .gitignore && eslint -c ./eslint.config.js \"./src*/**/*.{ts,js,cjs,mjs,vue}\"",
