@@ -11,6 +11,7 @@ import type { PaymentMethod } from '@/features/payment-methods/types';
  */
 
 const MOCK_DELAY_MS = 800;
+const UPDATE_FAILURE_PROBABILITY = 0.3;
 
 interface MockUser {
   username: string;
@@ -185,6 +186,11 @@ export async function updatePaymentMethodStatus(
 
   if (!method) {
     return simulateFailure('Método de pago no encontrado.');
+  }
+
+  // Fallo transitorio simulado para ejercitar el manejo de errores.
+  if (Math.random() < UPDATE_FAILURE_PROBABILITY) {
+    return simulateFailure('No se pudo actualizar el estado del método de pago. Inténtalo de nuevo.');
   }
 
   method.active = active;

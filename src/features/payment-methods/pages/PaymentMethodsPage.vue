@@ -21,11 +21,7 @@
       </div>
 
       <!-- Body -->
-      <div
-        v-for="row in skeletonRows"
-        :key="row"
-        class="pm-skeleton-row row items-center q-px-md"
-      >
+      <div v-for="row in skeletonRows" :key="row" class="pm-skeleton-row row items-center q-px-md">
         <div class="col"><q-skeleton type="text" /></div>
         <div class="col"><q-skeleton type="text" width="50%" class="q-mx-auto" /></div>
         <div class="col">
@@ -42,10 +38,7 @@
     </q-card>
 
     <!-- Error -->
-    <q-banner
-      v-else-if="store.status === 'error'"
-      class="bg-negative text-white rounded-borders"
-    >
+    <q-banner v-else-if="store.status === 'error'" class="bg-negative text-white rounded-borders">
       <template #avatar>
         <q-icon name="error" />
       </template>
