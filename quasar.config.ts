@@ -48,7 +48,8 @@ export default defineConfig((/* ctx */) => {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,
 
-      // publicPath: '/',
+      // En CI se sobreescribe con la subcarpeta del repo para publicar en GitHub Pages
+      publicPath: process.env.PUBLIC_PATH ?? '/',
       // define: {},
       // defineEnv: {}
       // ignorePublicFolder: true,

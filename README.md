@@ -20,6 +20,7 @@ vista base para la **gestión de métodos de pago**.
 - [🧱 Estructura del proyecto](#-estructura-del-proyecto)
 - [🗂️ Modelo de datos y tipado](#️-modelo-de-datos-y-tipado)
 - [🔐 Flujo de autenticación y seguridad](#-flujo-de-autenticación-y-seguridad)
+- [🚀 CI/CD y despliegue](#-cicd-y-despliegue)
 - [🛣️ Hoja de ruta](#️-hoja-de-ruta)
 
 ---
@@ -264,6 +265,39 @@ completas.
 
 ---
 
+## 🚀 CI/CD y despliegue
+
+El flujo de integración continua vive en `.github/workflows/ci.yml` y se dispara al
+hacer **push a `main`** o abrir un **Pull Request hacia `main`**. Para no malgastar
+ejecuciones, ignora los cambios que no afectan al build (`.md` y `docs/`): un commit
+que solo toque documentación **no** lanza el workflow.
+
+| Evento            | ¿Qué ejecuta?                                   | ¿Despliega? |
+| ----------------- | ----------------------------------------------- | ----------- |
+| Push a `main`     | lint → test → build → deploy a GitHub Pages     | Sí          |
+| PR hacia `main`   | lint → test → build                             | No          |
+
+- **Lint** usa ESLint directo (`lint:check` vuelca todo a stdout y no valida).
+- **Test** corre la suite de Vitest (`pnpm test:unit:ci`).
+- **Build** compila para producción (`pnpm build`, incluye typecheck).
+- **Deploy** publica `dist/spa/` en GitHub Pages mediante las acciones oficiales
+  (`configure-pages` → `upload-pages-artifact` → `deploy-pages`), solo en push a `main`.
+
+El `publicPath` es configurable por entorno en `quasar.config.ts`
+(`process.env.PUBLIC_PATH ?? '/'`). En local sigue siendo `/`; en CI se define
+`PUBLIC_PATH=/prueba_tecnica_vue/` para que los assets apunten a la subcarpeta del
+repo en GitHub Pages. Si el repositorio se llama distinto, ajusta ese valor en el
+workflow.
+
+### Requisitos (una sola vez)
+
+1. Subir el repositorio a GitHub.
+2. En **Settings → Pages → Build and deployment → Source**, seleccionar
+   **"GitHub Actions"**.
+3. Verificar que el nombre del repo coincida con `PUBLIC_PATH` en el workflow.
+
+---
+
 ## 🛣️ Hoja de ruta
 
 - [x] Pantalla de login con validación y estados de carga.
@@ -272,6 +306,7 @@ completas.
 - [x] Visualización de métodos de pago (tabla con paginación + toggle de estado).
 - [x] Crear / editar métodos de pago (formulario reutilizable con store + mock).
 - [x] Eliminar métodos de pago (confirmación + store + mock).
+- [x] CI/CD: lint, pruebas y build en push/PR a `main`, con deploy a GitHub Pages.
 
 ---
 
