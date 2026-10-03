@@ -227,6 +227,16 @@ interface PaymentMethodFormValues {
 }
 ```
 
+### Supuestos adoptados (métodos de pago)
+
+| Supuesto          | Decisión                                                                   |
+| ----------------- | -------------------------------------------------------------------------- |
+| Tipo              | Unión de 4 valores: `credit_card`, `debit_card`, `bank_account`, `digital_wallet` |
+| Estado al crear   | `active = true` por defecto                                                |
+| Fecha de creación | ISO 8601 (UTC)                                                             |
+| Descripción       | Opcional (`description?`)                                                  |
+| Fallos simulados  | 30% de probabilidad en mutaciones (crear / editar / eliminar / cambiar estado) |
+
 La tabla usa **paginación server-side simulada**: el estado de la página y los filtros viven
 en la URL (`?page=&rowsPerPage=&name=&type=&active=`), cada cambio dispara una petición al
 mock (con loading/skeleton) y los datos llegan ya ordenados por **fecha de creación
