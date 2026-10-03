@@ -269,3 +269,18 @@ export async function updatePaymentMethod(
 
   return simulateRequest({ ...method });
 }
+
+export async function deletePaymentMethod(id: string): Promise<void> {
+  const index = MOCK_PAYMENT_METHODS.findIndex((candidate) => candidate.id === id);
+
+  if (index === -1) {
+    return simulateFailure('Método de pago no encontrado.');
+  }
+
+  if (Math.random() < MUTATION_FAILURE_PROBABILITY) {
+    return simulateFailure('No se pudo eliminar el método de pago. Inténtalo de nuevo.');
+  }
+
+  MOCK_PAYMENT_METHODS.splice(index, 1);
+  return simulateRequest<void>(undefined);
+}

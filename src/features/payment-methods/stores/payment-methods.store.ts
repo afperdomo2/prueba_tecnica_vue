@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { Notify } from 'quasar';
 import {
   createPaymentMethod as createPaymentMethodRequest,
+  deletePaymentMethod as deletePaymentMethodRequest,
   getPaymentMethodById as fetchPaymentMethodByIdRequest,
   getPaymentMethods,
   updatePaymentMethod as updatePaymentMethodRequest,
@@ -115,6 +116,26 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
     }
   }
 
+  async function deletePaymentMethod(id: string): Promise<boolean> {
+    try {
+      await deletePaymentMethodRequest(id);
+      items.value = items.value.filter((item) => item.id !== id);
+      total.value = Math.max(0, total.value - 1);
+      Notify.create({ type: 'positive', message: 'Método de pago eliminado.' });
+      return true;
+    } catch (err) {
+      const message = errorMessage(err, 'Error al eliminar el método de pago.');
+
+      Notify.create({
+        type: 'negative',
+        message,
+        position: 'top',
+      });
+
+      return false;
+    }
+  }
+
   async function togglePaymentMethod(id: string): Promise<void> {
     const method = items.value.find((candidate) => candidate.id === id);
 
@@ -156,6 +177,7 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
     fetchPaymentMethodById,
     createPaymentMethod,
     updatePaymentMethod,
+    deletePaymentMethod,
     togglePaymentMethod,
   };
 });

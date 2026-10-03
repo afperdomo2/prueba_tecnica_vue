@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 
 vi.mock('@/api/mock-backend', () => ({
   createPaymentMethod: vi.fn(),
+  deletePaymentMethod: vi.fn(),
   getPaymentMethodById: vi.fn(),
   getPaymentMethods: vi.fn(),
   updatePaymentMethod: vi.fn(),
@@ -16,6 +17,7 @@ vi.mock('quasar', () => ({
 import { usePaymentMethodsStore } from '@/features/payment-methods/stores/payment-methods.store';
 import {
   createPaymentMethod,
+  deletePaymentMethod,
   getPaymentMethodById,
   getPaymentMethods,
   updatePaymentMethod,
@@ -25,6 +27,7 @@ import { Notify } from 'quasar';
 import type { PaymentMethod, PaymentMethodFormValues } from '@/features/payment-methods/types';
 
 const mockCreate = vi.mocked(createPaymentMethod);
+const mockDelete = vi.mocked(deletePaymentMethod);
 const mockFetchById = vi.mocked(getPaymentMethodById);
 const mockGet = vi.mocked(getPaymentMethods);
 const mockUpdate = vi.mocked(updatePaymentMethod);
@@ -114,6 +117,33 @@ describe('payment methods store', () => {
     const result = await store.updatePaymentMethod('pm_001', formValues);
 
     expect(result).toBe(false);
+    expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'negative' }));
+  });
+
+  it('deletePaymentMethod elimina el método y notifica éxito', async () => {
+    mockGet.mockResolvedValue({ items: [{ ...method }], total: 1 });
+    mockDelete.mockResolvedValue(undefined);
+
+    const store = usePaymentMethodsStore();
+    await store.fetchPaymentMethods({ page: 1, rowsPerPage: 10 });
+    const result = await store.deletePaymentMethod('pm_001');
+
+    expect(result).toBe(true);
+    expect(store.items).toHaveLength(0);
+    expect(store.total).toBe(0);
+    expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'positive' }));
+  });
+
+  it('deletePaymentMethod retorna false y notifica error', async () => {
+    mockGet.mockResolvedValue({ items: [{ ...method }], total: 1 });
+    mockDelete.mockRejectedValue(new Error('No se pudo eliminar.'));
+
+    const store = usePaymentMethodsStore();
+    await store.fetchPaymentMethods({ page: 1, rowsPerPage: 10 });
+    const result = await store.deletePaymentMethod('pm_001');
+
+    expect(result).toBe(false);
+    expect(store.items).toHaveLength(1);
     expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'negative' }));
   });
 

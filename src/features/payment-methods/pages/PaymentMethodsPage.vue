@@ -30,6 +30,7 @@
           <q-skeleton type="rect" width="40px" height="20px" class="q-mx-auto" />
         </div>
         <div class="col"><q-skeleton type="text" width="60%" class="q-mx-auto" /></div>
+        <div class="col"><q-skeleton type="text" width="50%" class="q-mx-auto" /></div>
       </div>
 
       <!-- Body -->
@@ -40,6 +41,12 @@
           <q-skeleton type="rect" width="40px" height="20px" class="q-mx-auto" />
         </div>
         <div class="col"><q-skeleton type="text" width="60%" class="q-mx-auto" /></div>
+        <div class="col">
+          <div class="row justify-center q-gutter-xs">
+            <q-skeleton type="circle" size="24px" />
+            <q-skeleton type="circle" size="24px" />
+          </div>
+        </div>
       </div>
 
       <!-- Footer (paginación) -->
@@ -123,7 +130,21 @@
             icon="edit"
             aria-label="Editar"
             :to="{ name: 'payment-method-edit', params: { id: props.row.id } }"
-          />
+          >
+            <q-tooltip>Editar</q-tooltip>
+          </q-btn>
+
+          <q-btn
+            flat
+            round
+            dense
+            color="negative"
+            icon="delete"
+            aria-label="Eliminar"
+            @click="onDelete(props.row)"
+          >
+            <q-tooltip>Eliminar</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
     </q-table>
@@ -133,9 +154,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Dialog } from 'quasar';
 import type { QTableColumn, QTableProps } from 'quasar';
 import FiltersPanel from '@/components/FiltersPanel.vue';
 import type { FilterField } from '@/components/filters.types';
+import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog.vue';
 import { usePaymentMethodsStore } from '../stores/payment-methods.store';
 import {
   paymentMethodActiveOptions,
@@ -143,7 +166,7 @@ import {
   paymentMethodTypeOptions,
 } from '../constants';
 import { formatDateShort, formatDateTime } from '@/utils/date';
-import type { PaymentMethodType } from '../types';
+import type { PaymentMethod, PaymentMethodType } from '../types';
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 
@@ -237,6 +260,27 @@ function onRequest(props: TableRequestProps): void {
   }
 
   void router.replace({ query });
+}
+
+function onDelete(row: PaymentMethod): void {
+  Dialog.create({
+    component: ConfirmDeleteDialog,
+    componentProps: { id: row.id, name: row.name },
+  }).onOk(() => {
+    const shouldGoBack = store.items.length === 0 && store.total > 0 && pagination.value.page > 1;
+
+    if (!shouldGoBack) {
+      return;
+    }
+
+    const query: Record<string, string> = readFiltersFromRoute();
+    query.page = String(pagination.value.page - 1);
+    const rowsPerPage = readRowsPerPage();
+    if (rowsPerPage !== DEFAULT_ROWS_PER_PAGE) {
+      query.rowsPerPage = String(rowsPerPage);
+    }
+    void router.replace({ query });
+  });
 }
 
 async function reload(): Promise<void> {

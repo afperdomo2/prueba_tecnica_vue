@@ -143,6 +143,7 @@ src/
 │   │   ├── stores/auth.store.ts # Store Pinia de autenticación
 │   │   └── types.ts             # Tipos del dominio auth
 │   └── payment-methods/
+│       ├── components/ConfirmDeleteDialog.vue # Diálogo de confirmación para eliminar
 │       ├── components/PaymentMethodForm.vue # Formulario reutilizable (crear/editar)
 │       ├── constants.ts                 # Metadatos de tipo (label + ícono)
 │       ├── pages/PaymentMethodsPage.vue # Tabla con paginación, filtros y toggle de estado
@@ -260,7 +261,7 @@ completas.
 - [x] Cierre de sesión con confirmación.
 - [x] Visualización de métodos de pago (tabla con paginación + toggle de estado).
 - [x] Crear / editar métodos de pago (formulario reutilizable con store + mock).
-- [ ] Eliminar métodos de pago (confirmación + store + mock).
+- [x] Eliminar métodos de pago (confirmación + store + mock).
 
 ---
 
