@@ -67,6 +67,9 @@ export default defineConfigWithVueTs(
       // slots use the "#" shorthand everywhere, as in the Quasar docs
       'vue/v-slot-style': ['warn', 'shorthand'],
 
+      // Forbid `any`: descriptive code + explicit types only
+      '@typescript-eslint/no-explicit-any': 'error',
+
       // allow debugger during development only
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     },

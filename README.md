@@ -15,6 +15,7 @@ vista base para la **gestión de métodos de pago**.
 - [✅ Requisitos previos](#-requisitos-previos)
 - [🚀 Instalación y entorno local](#-instalación-y-entorno-local)
 - [📦 Scripts disponibles](#-scripts-disponibles)
+- [🧪 Pruebas](#-pruebas)
 - [🔑 Credenciales de acceso (mock)](#-credenciales-de-acceso-mock)
 - [🧱 Estructura del proyecto](#-estructura-del-proyecto)
 - [🗂️ Modelo de datos y tipado](#️-modelo-de-datos-y-tipado)
@@ -33,6 +34,8 @@ vista base para la **gestión de métodos de pago**.
 | Pinia         | `4.x`          | Gestión de estado global               |
 | TypeScript    | `6.x`          | Tipado estático (modo `strict`)        |
 | Vite          | `8.x`          | Bundler / dev server (vía Quasar CLI)  |
+| Vitest        | `5.x`          | Pruebas unitarias (con happy-dom)      |
+| @vue/test-utils | `2.x`        | Montaje de componentes en pruebas      |
 
 ---
 
@@ -96,6 +99,20 @@ Los archivos generados quedan en `dist/spa/`.
 | `pnpm typecheck`      | Verifica tipos con `vue-tsc --noEmit`                               |
 | `pnpm lint`           | Formatea con Prettier y corrige con ESLint                          |
 | `pnpm lint:check`     | Valida formato y reglas de lint sin modificar archivos              |
+| `pnpm test`           | Ejecuta las pruebas unitarias una vez (Vitest)                      |
+| `pnpm test:unit`      | Ejecuta las pruebas unitarias en modo watch                         |
+
+---
+
+## 🧪 Pruebas
+
+Las pruebas unitarias usan **Vitest** + **@vue/test-utils** + **happy-dom** (cableado por el
+App Extension `@quasar/testing-unit-vitest`). Los tests viven en `test/vitest/__tests__/`.
+
+```bash
+pnpm test        # corre las pruebas una vez
+pnpm test:unit   # corre las pruebas en modo watch
+```
 
 ---
 
@@ -123,26 +140,33 @@ src/
 │   │   ├── stores/auth.store.ts # Store Pinia de autenticación
 │   │   └── types.ts             # Tipos del dominio auth
 │   └── payment-methods/
-│       └── pages/PaymentMethodsPage.vue  # Vista (placeholder) de métodos de pago
+│       ├── constants.ts                 # Metadatos de tipo (label + ícono)
+│       ├── pages/PaymentMethodsPage.vue # Tabla con paginación y toggle de estado
+│       ├── stores/payment-methods.store.ts # Store Pinia de métodos de pago
+│       └── types.ts                     # Tipos del dominio payment-methods
 ├── layouts/
 │   └── MainLayout.vue           # Layout protegido (header + logout)
 ├── router/
 │   ├── guards.ts                # Guard global de autenticación (beforeEach)
 │   ├── index.ts                 # Instancia del router
 │   └── routes.ts                # Definición de rutas
-└── stores/
-    └── index.ts                 # Bootstrap de Pinia
+├── stores/
+│   └── index.ts                 # Bootstrap de Pinia
+└── utils/
+    └── date.ts                  # Helpers globales de formateo de fechas (es)
 ```
 
 > El proyecto usa una organización **por feature/dominio** (`src/features/`), que
 > co-localiza página, store y tipos de cada módulo.
+>
+> Las pruebas unitarias viven en `test/vitest/__tests__/` (config en `vitest.config.ts`).
 
 ---
 
 ## 🗂️ Modelo de datos y tipado
 
-Los supuestos del modelo de negocio se tipan en cada feature. Actualmente el dominio
-de **autenticación** define:
+Los supuestos del modelo de negocio se tipan en cada feature. Los dominios actuales son
+**autenticación** y **métodos de pago**:
 
 ```ts
 // src/features/auth/types.ts
@@ -174,6 +198,33 @@ interface AuthSession {
 | Latencia simulada                         | `800 ms` de retardo en cada respuesta del mock                            |
 | Errores del mock                          | Credenciales inválidas → la promesa se **rechaza** con un `Error`        |
 
+### Métodos de pago
+
+```ts
+// src/features/payment-methods/types.ts
+
+type PaymentMethodType =
+  | 'credit_card'
+  | 'debit_card'
+  | 'bank_account'
+  | 'digital_wallet';
+
+interface PaymentMethod {
+  id: string;             // Identificador único
+  name: string;           // Nombre visible (ej. "Visa terminación 4242")
+  type: PaymentMethodType; // Categoría del método
+  active: boolean;        // Estado (activo/inactivo)
+  createdAt: string;      // Fecha de creación (ISO 8601)
+}
+```
+
+La tabla usa **paginación server-side simulada**: el estado de la página vive en la URL
+(`?page=&rowsPerPage=`), cada cambio dispara una petición al mock (con loading/skeleton) y
+los datos llegan ya ordenados por **fecha de creación descendente** (sin ordenamiento en el
+frontend). El cambio de estado es **optimista** (se refleja al instante y se revierte si el
+mock falla). Las fechas se muestran en español (`24 sept 2026`) con un tooltip que revela la
+fecha y hora completas.
+
 ---
 
 ## 🔐 Flujo de autenticación y seguridad
@@ -197,7 +248,8 @@ interface AuthSession {
 - [x] Pantalla de login con validación y estados de carga.
 - [x] Protección de rutas (guards) y redirección al login.
 - [x] Cierre de sesión con confirmación.
-- [ ] Lista y gestión completa de métodos de pago (CRUD con store + mock).
+- [x] Visualización de métodos de pago (tabla con paginación + toggle de estado).
+- [ ] Crear / editar / eliminar métodos de pago (CRUD con store + mock).
 
 ---
 

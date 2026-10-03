@@ -1,4 +1,5 @@
 import type { AuthSession, LoginCredentials } from '@/features/auth/types';
+import type { PaymentMethod } from '@/features/payment-methods/types';
 
 /**
  * Capa mock que simula el backend.
@@ -57,4 +58,135 @@ export async function login(credentials: LoginCredentials): Promise<AuthSession>
     token: found.token,
     user: found.user,
   });
+}
+
+const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
+  {
+    id: 'pm_001',
+    name: 'Visa terminación 4242',
+    type: 'credit_card',
+    active: true,
+    createdAt: '2026-01-15T10:30:00.000Z',
+  },
+  {
+    id: 'pm_002',
+    name: 'Mastercard Gold',
+    type: 'credit_card',
+    active: true,
+    createdAt: '2026-02-03T09:15:00.000Z',
+  },
+  {
+    id: 'pm_003',
+    name: 'Tarjeta de débito principal',
+    type: 'debit_card',
+    active: true,
+    createdAt: '2026-02-18T14:05:00.000Z',
+  },
+  {
+    id: 'pm_004',
+    name: 'Cuenta bancaria principal',
+    type: 'bank_account',
+    active: true,
+    createdAt: '2026-03-10T11:40:00.000Z',
+  },
+  {
+    id: 'pm_005',
+    name: 'Nequi',
+    type: 'digital_wallet',
+    active: true,
+    createdAt: '2026-04-05T16:20:00.000Z',
+  },
+  {
+    id: 'pm_006',
+    name: 'American Express',
+    type: 'credit_card',
+    active: false,
+    createdAt: '2026-05-22T08:50:00.000Z',
+  },
+  {
+    id: 'pm_007',
+    name: 'Cuenta de ahorros',
+    type: 'bank_account',
+    active: false,
+    createdAt: '2026-06-14T13:10:00.000Z',
+  },
+  {
+    id: 'pm_008',
+    name: 'PayPal',
+    type: 'digital_wallet',
+    active: true,
+    createdAt: '2026-07-01T10:00:00.000Z',
+  },
+  {
+    id: 'pm_009',
+    name: 'Tarjeta de débito secundaria',
+    type: 'debit_card',
+    active: false,
+    createdAt: '2025-08-19T17:35:00.000Z',
+  },
+  {
+    id: 'pm_010',
+    name: 'Cuenta corriente',
+    type: 'bank_account',
+    active: true,
+    createdAt: '2025-09-27T09:45:00.000Z',
+  },
+  {
+    id: 'pm_011',
+    name: 'Visa empresa',
+    type: 'credit_card',
+    active: false,
+    createdAt: '2025-10-11T12:25:00.000Z',
+  },
+  {
+    id: 'pm_012',
+    name: 'Apple Pay',
+    type: 'digital_wallet',
+    active: true,
+    createdAt: '2025-11-30T15:55:00.000Z',
+  },
+];
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
+export interface PaymentMethodsQuery {
+  page: number;
+  rowsPerPage: number;
+}
+
+export async function getPaymentMethods(
+  query: PaymentMethodsQuery,
+): Promise<PaginatedResult<PaymentMethod>> {
+  const { page, rowsPerPage } = query;
+
+  // Orden fijo del backend: fecha de creación descendente.
+  const sorted = [...MOCK_PAYMENT_METHODS].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
+
+  const total = sorted.length;
+  const start = (page - 1) * rowsPerPage;
+  const items = rowsPerPage === 0 ? sorted : sorted.slice(start, start + rowsPerPage);
+
+  return simulateRequest({
+    items: items.map((method) => ({ ...method })),
+    total,
+  });
+}
+
+export async function updatePaymentMethodStatus(
+  id: string,
+  active: boolean,
+): Promise<PaymentMethod> {
+  const method = MOCK_PAYMENT_METHODS.find((candidate) => candidate.id === id);
+
+  if (!method) {
+    return simulateFailure('Método de pago no encontrado.');
+  }
+
+  method.active = active;
+  return simulateRequest({ ...method });
 }
