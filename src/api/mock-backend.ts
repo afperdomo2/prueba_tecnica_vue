@@ -156,17 +156,36 @@ export interface PaginatedResult<T> {
 export interface PaymentMethodsQuery {
   page: number;
   rowsPerPage: number;
+  name?: string;
+  type?: string;
+  active?: string;
 }
 
 export async function getPaymentMethods(
   query: PaymentMethodsQuery,
 ): Promise<PaginatedResult<PaymentMethod>> {
-  const { page, rowsPerPage } = query;
+  const { page, rowsPerPage, name, type, active } = query;
+
+  let filtered = [...MOCK_PAYMENT_METHODS];
+
+  if (name) {
+    const normalizedName = name.toLowerCase();
+    filtered = filtered.filter((method) =>
+      method.name.toLowerCase().includes(normalizedName),
+    );
+  }
+
+  if (type) {
+    filtered = filtered.filter((method) => method.type === type);
+  }
+
+  if (active) {
+    const isActive = active === 'true';
+    filtered = filtered.filter((method) => method.active === isActive);
+  }
 
   // Orden fijo del backend: fecha de creación descendente.
-  const sorted = [...MOCK_PAYMENT_METHODS].sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  );
+  const sorted = filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const total = sorted.length;
   const start = (page - 1) * rowsPerPage;

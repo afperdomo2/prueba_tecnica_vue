@@ -2,6 +2,8 @@
   <q-page padding>
     <div class="text-h5 text-primary text-weight-bold q-mb-md">Métodos de pago</div>
 
+    <FiltersPanel class="q-mb-md" :fields="filterFields" @search="onSearch" @clear="onClear" />
+
     <!-- Skeleton mientras carga -->
     <q-card
       v-if="store.isLoading"
@@ -108,8 +110,14 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { QTableColumn, QTableProps } from 'quasar';
+import FiltersPanel from '@/components/FiltersPanel.vue';
+import type { FilterField } from '@/components/filters.types';
 import { usePaymentMethodsStore } from '../stores/payment-methods.store';
-import { paymentMethodTypeMeta } from '../constants';
+import {
+  paymentMethodActiveOptions,
+  paymentMethodTypeMeta,
+  paymentMethodTypeOptions,
+} from '../constants';
 import { formatDateShort, formatDateTime } from '@/utils/date';
 import type { PaymentMethodType } from '../types';
 
@@ -124,6 +132,12 @@ const pagination = ref({
   rowsPerPage: DEFAULT_ROWS_PER_PAGE,
   rowsNumber: 0,
 });
+
+const filterFields: FilterField[] = [
+  { name: 'name', label: 'Nombre', type: 'text' },
+  { name: 'type', label: 'Tipo', type: 'select', options: paymentMethodTypeOptions },
+  { name: 'active', label: 'Estado', type: 'select', options: paymentMethodActiveOptions },
+];
 
 const columns: QTableColumn[] = [
   { name: 'name', label: 'Nombre', field: 'name', align: 'left' },
@@ -141,14 +155,55 @@ function parsePositiveInt(value: unknown, fallback: number): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function readStringParam(value: unknown): string | undefined {
+  return typeof value === 'string' && value !== '' ? value : undefined;
+}
+
+function readRowsPerPage(): number {
+  return parsePositiveInt(route.query.rowsPerPage, DEFAULT_ROWS_PER_PAGE);
+}
+
+function readFiltersFromRoute(): Record<string, string> {
+  const filters: Record<string, string> = {};
+  const name = readStringParam(route.query.name);
+  const type = readStringParam(route.query.type);
+  const active = readStringParam(route.query.active);
+
+  if (name) filters.name = name;
+  if (type) filters.type = type;
+  if (active) filters.active = active;
+
+  return filters;
+}
+
 function typeMeta(type: PaymentMethodType) {
   return paymentMethodTypeMeta[type];
+}
+
+function onSearch(values: Record<string, string>): void {
+  const query: Record<string, string> = { ...values };
+  const rowsPerPage = readRowsPerPage();
+  if (rowsPerPage !== DEFAULT_ROWS_PER_PAGE) {
+    query.rowsPerPage = String(rowsPerPage);
+  }
+  // Sin `page` en la URL → vuelve a la página 1.
+  void router.replace({ query });
+}
+
+function onClear(): void {
+  const query: Record<string, string> = {};
+  const rowsPerPage = readRowsPerPage();
+  if (rowsPerPage !== DEFAULT_ROWS_PER_PAGE) {
+    query.rowsPerPage = String(rowsPerPage);
+  }
+  // Sin `page` en la URL → vuelve a la página 1.
+  void router.replace({ query });
 }
 
 function onRequest(props: TableRequestProps): void {
   const { page, rowsPerPage } = props.pagination;
 
-  const query: Record<string, string> = {};
+  const query: Record<string, string> = readFiltersFromRoute();
   if (page > 1) {
     query.page = String(page);
   }
@@ -161,12 +216,13 @@ function onRequest(props: TableRequestProps): void {
 
 async function reload(): Promise<void> {
   const page = parsePositiveInt(route.query.page, 1);
-  const rowsPerPage = parsePositiveInt(route.query.rowsPerPage, DEFAULT_ROWS_PER_PAGE);
+  const rowsPerPage = readRowsPerPage();
+  const filters = readFiltersFromRoute();
 
   pagination.value.page = page;
   pagination.value.rowsPerPage = rowsPerPage;
 
-  await store.fetchPaymentMethods({ page, rowsPerPage });
+  await store.fetchPaymentMethods({ page, rowsPerPage, ...filters });
   pagination.value.rowsNumber = store.total;
 }
 

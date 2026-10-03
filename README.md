@@ -134,6 +134,9 @@ src/
 │   └── mock-backend.ts          # Única fuente de datos mock + simulación de latencia/errores
 ├── boot/
 │   └── auth.ts                  # Hidrata la sesión desde localStorage al arrancar
+├── components/
+│   ├── FiltersPanel.vue         # Componente de filtros reutilizable (config por props)
+│   └── filters.types.ts         # Tipos del componente de filtros
 ├── features/
 │   ├── auth/
 │   │   ├── pages/LoginPage.vue  # Pantalla de login
@@ -218,12 +221,14 @@ interface PaymentMethod {
 }
 ```
 
-La tabla usa **paginación server-side simulada**: el estado de la página vive en la URL
-(`?page=&rowsPerPage=`), cada cambio dispara una petición al mock (con loading/skeleton) y
-los datos llegan ya ordenados por **fecha de creación descendente** (sin ordenamiento en el
-frontend). El cambio de estado es **optimista** (se refleja al instante y se revierte si el
-mock falla). Las fechas se muestran en español (`24 sept 2026`) con un tooltip que revela la
-fecha y hora completas.
+La tabla usa **paginación server-side simulada**: el estado de la página y los filtros viven
+en la URL (`?page=&rowsPerPage=&name=&type=&active=`), cada cambio dispara una petición al
+mock (con loading/skeleton) y los datos llegan ya ordenados por **fecha de creación
+descendente** (sin ordenamiento en el frontend). El filtro lo provee el componente
+reutilizable `FiltersPanel` (config por props); al buscar o limpiar se vuelve a la página 1.
+El cambio de estado es **optimista** (se refleja al instante y se revierte si el mock falla).
+Las fechas se muestran en español (`24 sept 2026`) con un tooltip que revela la fecha y hora
+completas.
 
 ---
 
