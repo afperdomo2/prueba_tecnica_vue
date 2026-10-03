@@ -1,11 +1,7 @@
 <template>
   <q-form @submit="onSearch">
     <div class="row q-col-gutter-md items-end">
-      <div
-        v-for="field in fields"
-        :key="field.name"
-        class="col-12 col-sm-6 col-md-3"
-      >
+      <div v-for="field in fields" :key="field.name" class="col-12 col-sm-6 col-md-3">
         <q-input
           v-if="field.type === 'text'"
           v-model="model[field.name]"
@@ -14,6 +10,7 @@
           outlined
           dense
           clearable
+          :disable="loading"
           :rules="rulesFor(field)"
         />
 
@@ -29,14 +26,31 @@
           outlined
           dense
           clearable
+          :disable="loading"
           :rules="rulesFor(field)"
         />
       </div>
 
       <div class="col-12 col-md-auto">
         <div class="row q-gutter-sm">
-          <q-btn type="submit" color="primary" icon="search" label="Buscar" no-caps />
-          <q-btn flat color="grey-8" icon="clear" label="Limpiar" no-caps @click="onClear" />
+          <q-btn
+            type="submit"
+            color="primary"
+            icon="search"
+            label="Buscar"
+            no-caps
+            :loading="loading"
+            :disable="loading"
+          />
+          <q-btn
+            flat
+            color="grey-8"
+            icon="clear"
+            label="Limpiar"
+            no-caps
+            :disable="loading"
+            @click="onClear"
+          />
         </div>
       </div>
     </div>
@@ -47,7 +61,7 @@
 import { reactive, ref } from 'vue';
 import type { FilterField } from './filters.types';
 
-const props = defineProps<{ fields: FilterField[] }>();
+const props = defineProps<{ fields: FilterField[]; loading?: boolean }>();
 
 const emit = defineEmits<{
   search: [values: Record<string, string>];

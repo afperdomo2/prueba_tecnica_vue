@@ -47,9 +47,7 @@ describe('auth store', () => {
     expect(result).toBe(false);
     expect(store.isAuthenticated).toBe(false);
     expect(store.status).toBe('error');
-    expect(mockNotifyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'negative' }),
-    );
+    expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'negative' }));
   });
 
   it('logout limpia sesión y estado', async () => {

@@ -57,8 +57,7 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
     } catch (err) {
       method.active = previousActive;
 
-      const message =
-        err instanceof Error ? err.message : 'Error al actualizar el método de pago.';
+      const message = err instanceof Error ? err.message : 'Error al actualizar el método de pago.';
 
       Notify.create({
         type: 'negative',

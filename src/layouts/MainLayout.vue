@@ -12,14 +12,7 @@
             <div class="text-caption text-grey-4">{{ authStore.user?.email ?? '' }}</div>
           </div>
 
-          <q-btn
-            flat
-            dense
-            round
-            icon="logout"
-            aria-label="Cerrar sesión"
-            @click="onLogout"
-          >
+          <q-btn flat dense round icon="logout" aria-label="Cerrar sesión" @click="onLogout">
             <q-tooltip>Cerrar sesión</q-tooltip>
           </q-btn>
         </div>

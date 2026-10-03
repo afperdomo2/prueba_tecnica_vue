@@ -53,9 +53,7 @@ describe('payment methods store', () => {
 
     expect(store.status).toBe('error');
     expect(store.error).toBe('Fallo al cargar.');
-    expect(mockNotifyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'negative' }),
-    );
+    expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'negative' }));
   });
 
   it('togglePaymentMethod actualiza de forma optimista y persiste', async () => {
@@ -88,8 +86,6 @@ describe('payment methods store', () => {
 
     expect(store.items[0]?.active).toBe(true);
     expect(store.isUpdating('pm_001')).toBe(false);
-    expect(mockNotifyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'negative' }),
-    );
+    expect(mockNotifyCreate).toHaveBeenCalledWith(expect.objectContaining({ type: 'negative' }));
   });
 });

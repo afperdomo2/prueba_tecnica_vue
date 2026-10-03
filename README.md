@@ -26,16 +26,16 @@ vista base para la **gestión de métodos de pago**.
 
 ## 🧰 Stack tecnológico
 
-| Herramienta   | Versión        | Uso                                    |
-| ------------- | -------------- | -------------------------------------- |
-| Quasar        | `2.34.x`       | Framework UI (componentes, plugins)    |
-| Vue           | `3.5.x`        | Framework reactivo                     |
-| Vue Router    | `5.x`          | Enrutamiento y guards de navegación    |
-| Pinia         | `4.x`          | Gestión de estado global               |
-| TypeScript    | `6.x`          | Tipado estático (modo `strict`)        |
-| Vite          | `8.x`          | Bundler / dev server (vía Quasar CLI)  |
-| Vitest        | `5.x`          | Pruebas unitarias (con happy-dom)      |
-| @vue/test-utils | `2.x`        | Montaje de componentes en pruebas      |
+| Herramienta     | Versión  | Uso                                   |
+| --------------- | -------- | ------------------------------------- |
+| Quasar          | `2.34.x` | Framework UI (componentes, plugins)   |
+| Vue             | `3.5.x`  | Framework reactivo                    |
+| Vue Router      | `5.x`    | Enrutamiento y guards de navegación   |
+| Pinia           | `4.x`    | Gestión de estado global              |
+| TypeScript      | `6.x`    | Tipado estático (modo `strict`)       |
+| Vite            | `8.x`    | Bundler / dev server (vía Quasar CLI) |
+| Vitest          | `5.x`    | Pruebas unitarias (con happy-dom)     |
+| @vue/test-utils | `2.x`    | Montaje de componentes en pruebas     |
 
 ---
 
@@ -92,15 +92,15 @@ Los archivos generados quedan en `dist/spa/`.
 
 ## 📦 Scripts disponibles
 
-| Comando               | Descripción                                                        |
-| --------------------- | ------------------------------------------------------------------ |
-| `pnpm dev`            | Inicia el servidor de desarrollo con HMR                            |
-| `pnpm build`          | Compila la aplicación para producción (incluye typecheck)           |
-| `pnpm typecheck`      | Verifica tipos con `vue-tsc --noEmit`                               |
-| `pnpm lint`           | Formatea con Prettier y corrige con ESLint                          |
-| `pnpm lint:check`     | Valida formato y reglas de lint sin modificar archivos              |
-| `pnpm test`           | Ejecuta las pruebas unitarias una vez (Vitest)                      |
-| `pnpm test:unit`      | Ejecuta las pruebas unitarias en modo watch                         |
+| Comando           | Descripción                                               |
+| ----------------- | --------------------------------------------------------- |
+| `pnpm dev`        | Inicia el servidor de desarrollo con HMR                  |
+| `pnpm build`      | Compila la aplicación para producción (incluye typecheck) |
+| `pnpm typecheck`  | Verifica tipos con `vue-tsc --noEmit`                     |
+| `pnpm lint`       | Formatea con Prettier y corrige con ESLint                |
+| `pnpm lint:check` | Valida formato y reglas de lint sin modificar archivos    |
+| `pnpm test`       | Ejecuta las pruebas unitarias una vez (Vitest)            |
+| `pnpm test:unit`  | Ejecuta las pruebas unitarias en modo watch               |
 
 ---
 
@@ -120,9 +120,9 @@ pnpm test:unit   # corre las pruebas en modo watch
 
 La autenticación usa datos simulados en el frontend (sin backend real).
 
-| Usuario   | Contraseña  |
-| --------- | ----------- |
-| `admin`   | `admin123`  |
+| Usuario | Contraseña |
+| ------- | ---------- |
+| `admin` | `admin123` |
 
 ---
 
@@ -175,9 +175,9 @@ Los supuestos del modelo de negocio se tipan en cada feature. Los dominios actua
 // src/features/auth/types.ts
 
 interface AuthUser {
-  id: string;      // Identificador único del usuario
-  name: string;    // Nombre visible
-  email: string;   // Correo (dato de presentación, no es el campo de login)
+  id: string; // Identificador único del usuario
+  name: string; // Nombre visible
+  email: string; // Correo (dato de presentación, no es el campo de login)
 }
 
 interface LoginCredentials {
@@ -186,38 +186,34 @@ interface LoginCredentials {
 }
 
 interface AuthSession {
-  token: string;    // Token simulado (JWT de juguete)
+  token: string; // Token simulado (JWT de juguete)
   user: AuthUser;
 }
 ```
 
 ### Supuestos adoptados
 
-| Supuesto                                  | Decisión                                                                 |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| Campo de acceso                           | Se autentica por **`username`** (no por email), valor `admin`             |
-| Token de sesión                           | Cadena simulada (`mock-jwt-token-admin`), sin expiración real             |
-| Persistencia de sesión                    | `token` y `user` se guardan en `localStorage` (`auth.token`, `auth.user`) |
-| Latencia simulada                         | `800 ms` de retardo en cada respuesta del mock                            |
-| Errores del mock                          | Credenciales inválidas → la promesa se **rechaza** con un `Error`        |
+| Supuesto               | Decisión                                                                  |
+| ---------------------- | ------------------------------------------------------------------------- |
+| Campo de acceso        | Se autentica por **`username`** (no por email), valor `admin`             |
+| Token de sesión        | Cadena simulada (`mock-jwt-token-admin`), sin expiración real             |
+| Persistencia de sesión | `token` y `user` se guardan en `localStorage` (`auth.token`, `auth.user`) |
+| Latencia simulada      | `800 ms` de retardo en cada respuesta del mock                            |
+| Errores del mock       | Credenciales inválidas → la promesa se **rechaza** con un `Error`         |
 
 ### Métodos de pago
 
 ```ts
 // src/features/payment-methods/types.ts
 
-type PaymentMethodType =
-  | 'credit_card'
-  | 'debit_card'
-  | 'bank_account'
-  | 'digital_wallet';
+type PaymentMethodType = 'credit_card' | 'debit_card' | 'bank_account' | 'digital_wallet';
 
 interface PaymentMethod {
-  id: string;             // Identificador único
-  name: string;           // Nombre visible (ej. "Visa terminación 4242")
+  id: string; // Identificador único
+  name: string; // Nombre visible (ej. "Visa terminación 4242")
   type: PaymentMethodType; // Categoría del método
-  active: boolean;        // Estado (activo/inactivo)
-  createdAt: string;      // Fecha de creación (ISO 8601)
+  active: boolean; // Estado (activo/inactivo)
+  createdAt: string; // Fecha de creación (ISO 8601)
 }
 ```
 

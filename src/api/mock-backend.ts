@@ -170,9 +170,7 @@ export async function getPaymentMethods(
 
   if (name) {
     const normalizedName = name.toLowerCase();
-    filtered = filtered.filter((method) =>
-      method.name.toLowerCase().includes(normalizedName),
-    );
+    filtered = filtered.filter((method) => method.name.toLowerCase().includes(normalizedName));
   }
 
   if (type) {
@@ -209,7 +207,9 @@ export async function updatePaymentMethodStatus(
 
   // Fallo transitorio simulado para ejercitar el manejo de errores.
   if (Math.random() < UPDATE_FAILURE_PROBABILITY) {
-    return simulateFailure('No se pudo actualizar el estado del método de pago. Inténtalo de nuevo.');
+    return simulateFailure(
+      'No se pudo actualizar el estado del método de pago. Inténtalo de nuevo.',
+    );
   }
 
   method.active = active;

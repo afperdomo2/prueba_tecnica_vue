@@ -2,7 +2,13 @@
   <q-page padding>
     <div class="text-h5 text-primary text-weight-bold q-mb-md">Métodos de pago</div>
 
-    <FiltersPanel class="q-mb-md" :fields="filterFields" @search="onSearch" @clear="onClear" />
+    <FiltersPanel
+      class="q-mb-md"
+      :fields="filterFields"
+      :loading="store.isLoading"
+      @search="onSearch"
+      @clear="onClear"
+    />
 
     <!-- Skeleton mientras carga -->
     <q-card

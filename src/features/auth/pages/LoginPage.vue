@@ -83,9 +83,7 @@ const form = reactive({
 const isLoading = computed(() => authStore.status === 'loading');
 
 function requiredRule(value: unknown): boolean | string {
-  return typeof value === 'string' && value.trim().length > 0
-    ? true
-    : 'Este campo es obligatorio.';
+  return typeof value === 'string' && value.trim().length > 0 ? true : 'Este campo es obligatorio.';
 }
 
 async function onSubmit(): Promise<void> {

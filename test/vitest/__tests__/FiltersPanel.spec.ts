@@ -40,9 +40,7 @@ describe('FiltersPanel', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    const firstCall = wrapper.emitted('search')?.[0]?.[0] as
-      | Record<string, string>
-      | undefined;
+    const firstCall = wrapper.emitted('search')?.[0]?.[0] as Record<string, string> | undefined;
 
     expect(firstCall).toEqual({ name: 'Visa' });
   });
@@ -66,5 +64,17 @@ describe('FiltersPanel', () => {
     await wrapper.find('form').trigger('submit');
 
     expect(wrapper.emitted('search')).toBeUndefined();
+  });
+
+  it('deshabilita campos y botones cuando loading es true', () => {
+    const wrapper = mount(FiltersPanel, { props: { fields, loading: true } });
+
+    const searchBtn = findButtonByLabel(wrapper, 'Buscar');
+    const clearBtn = findButtonByLabel(wrapper, 'Limpiar');
+    const nameInput = wrapper.find('input').element as HTMLInputElement;
+
+    expect((searchBtn!.element as HTMLButtonElement).disabled).toBe(true);
+    expect((clearBtn!.element as HTMLButtonElement).disabled).toBe(true);
+    expect(nameInput.disabled).toBe(true);
   });
 });
