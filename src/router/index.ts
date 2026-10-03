@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 
 import routes from './routes';
+import { setupAuthGuard } from './guards';
 
 /*
  * If not building with SSR mode, you can
@@ -33,6 +34,8 @@ export default defineRouter((/* { store, ssrContext } */) => {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
+
+  setupAuthGuard(Router);
 
   return Router;
 });
