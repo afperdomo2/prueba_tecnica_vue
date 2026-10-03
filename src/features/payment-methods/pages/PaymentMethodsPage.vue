@@ -1,6 +1,10 @@
 <template>
   <q-page padding>
-    <div class="text-h5 text-primary text-weight-bold q-mb-md">Métodos de pago</div>
+    <div class="row items-center q-mb-md">
+      <div class="text-h5 text-primary text-weight-bold">Métodos de pago</div>
+      <q-space />
+      <q-btn color="primary" icon="add" label="Nuevo" no-caps to="/payment-methods/new" />
+    </div>
 
     <FiltersPanel
       class="q-mb-md"
@@ -108,6 +112,20 @@
           </span>
         </q-td>
       </template>
+
+      <template #body-cell-actions="props">
+        <q-td :props="props">
+          <q-btn
+            flat
+            round
+            dense
+            color="primary"
+            icon="edit"
+            aria-label="Editar"
+            :to="{ name: 'payment-method-edit', params: { id: props.row.id } }"
+          />
+        </q-td>
+      </template>
     </q-table>
   </q-page>
 </template>
@@ -150,6 +168,7 @@ const columns: QTableColumn[] = [
   { name: 'type', label: 'Tipo', field: 'type', align: 'center' },
   { name: 'active', label: 'Estado', field: 'active', align: 'center' },
   { name: 'createdAt', label: 'Fecha de creación', field: 'createdAt', align: 'center' },
+  { name: 'actions', label: 'Acciones', field: 'id', align: 'center' },
 ];
 
 const skeletonRows = computed(() => pagination.value.rowsPerPage || DEFAULT_ROWS_PER_PAGE);

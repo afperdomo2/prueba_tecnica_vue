@@ -1,5 +1,5 @@
 import type { AuthSession, LoginCredentials } from '@/features/auth/types';
-import type { PaymentMethod } from '@/features/payment-methods/types';
+import type { PaymentMethod, PaymentMethodFormValues } from '@/features/payment-methods/types';
 
 /**
  * Capa mock que simula el backend.
@@ -11,7 +11,7 @@ import type { PaymentMethod } from '@/features/payment-methods/types';
  */
 
 const MOCK_DELAY_MS = 800;
-const UPDATE_FAILURE_PROBABILITY = 0.3;
+const MUTATION_FAILURE_PROBABILITY = 0.3;
 
 interface MockUser {
   username: string;
@@ -206,12 +206,66 @@ export async function updatePaymentMethodStatus(
   }
 
   // Fallo transitorio simulado para ejercitar el manejo de errores.
-  if (Math.random() < UPDATE_FAILURE_PROBABILITY) {
+  if (Math.random() < MUTATION_FAILURE_PROBABILITY) {
     return simulateFailure(
       'No se pudo actualizar el estado del método de pago. Inténtalo de nuevo.',
     );
   }
 
   method.active = active;
+  return simulateRequest({ ...method });
+}
+
+export async function getPaymentMethodById(id: string): Promise<PaymentMethod> {
+  const method = MOCK_PAYMENT_METHODS.find((candidate) => candidate.id === id);
+
+  if (!method) {
+    return simulateFailure('Método de pago no encontrado.');
+  }
+
+  return simulateRequest({ ...method });
+}
+
+export async function createPaymentMethod(values: PaymentMethodFormValues): Promise<PaymentMethod> {
+  if (Math.random() < MUTATION_FAILURE_PROBABILITY) {
+    return simulateFailure('No se pudo crear el método de pago. Inténtalo de nuevo.');
+  }
+
+  const method: PaymentMethod = {
+    id: `pm_${String(MOCK_PAYMENT_METHODS.length + 1).padStart(3, '0')}`,
+    name: values.name,
+    type: values.type,
+    active: true,
+    createdAt: new Date().toISOString(),
+    ...(values.description ? { description: values.description } : {}),
+  };
+
+  MOCK_PAYMENT_METHODS.push(method);
+  return simulateRequest({ ...method });
+}
+
+export async function updatePaymentMethod(
+  id: string,
+  values: PaymentMethodFormValues,
+): Promise<PaymentMethod> {
+  const method = MOCK_PAYMENT_METHODS.find((candidate) => candidate.id === id);
+
+  if (!method) {
+    return simulateFailure('Método de pago no encontrado.');
+  }
+
+  if (Math.random() < MUTATION_FAILURE_PROBABILITY) {
+    return simulateFailure('No se pudo actualizar el método de pago. Inténtalo de nuevo.');
+  }
+
+  method.name = values.name;
+  method.type = values.type;
+
+  if (values.description) {
+    method.description = values.description;
+  } else {
+    delete method.description;
+  }
+
   return simulateRequest({ ...method });
 }

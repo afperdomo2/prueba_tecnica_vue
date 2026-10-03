@@ -143,8 +143,10 @@ src/
 │   │   ├── stores/auth.store.ts # Store Pinia de autenticación
 │   │   └── types.ts             # Tipos del dominio auth
 │   └── payment-methods/
+│       ├── components/PaymentMethodForm.vue # Formulario reutilizable (crear/editar)
 │       ├── constants.ts                 # Metadatos de tipo (label + ícono)
-│       ├── pages/PaymentMethodsPage.vue # Tabla con paginación y toggle de estado
+│       ├── pages/PaymentMethodsPage.vue # Tabla con paginación, filtros y toggle de estado
+│       ├── pages/PaymentMethodFormPage.vue # Página de crear/editar método de pago
 │       ├── stores/payment-methods.store.ts # Store Pinia de métodos de pago
 │       └── types.ts                     # Tipos del dominio payment-methods
 ├── layouts/
@@ -214,6 +216,13 @@ interface PaymentMethod {
   type: PaymentMethodType; // Categoría del método
   active: boolean; // Estado (activo/inactivo)
   createdAt: string; // Fecha de creación (ISO 8601)
+  description?: string; // Descripción (opcional)
+}
+
+interface PaymentMethodFormValues {
+  name: string;
+  type: PaymentMethodType;
+  description?: string;
 }
 ```
 
@@ -250,7 +259,8 @@ completas.
 - [x] Protección de rutas (guards) y redirección al login.
 - [x] Cierre de sesión con confirmación.
 - [x] Visualización de métodos de pago (tabla con paginación + toggle de estado).
-- [ ] Crear / editar / eliminar métodos de pago (CRUD con store + mock).
+- [x] Crear / editar métodos de pago (formulario reutilizable con store + mock).
+- [ ] Eliminar métodos de pago (confirmación + store + mock).
 
 ---
 

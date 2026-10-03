@@ -1,9 +1,15 @@
 import { computed, ref } from 'vue';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { Notify } from 'quasar';
-import { getPaymentMethods, updatePaymentMethodStatus } from '@/api/mock-backend';
+import {
+  createPaymentMethod as createPaymentMethodRequest,
+  getPaymentMethodById as fetchPaymentMethodByIdRequest,
+  getPaymentMethods,
+  updatePaymentMethod as updatePaymentMethodRequest,
+  updatePaymentMethodStatus,
+} from '@/api/mock-backend';
 import type { PaymentMethodsQuery } from '@/api/mock-backend';
-import type { PaymentMethod } from '../types';
+import type { PaymentMethod, PaymentMethodFormValues } from '../types';
 
 export type PaymentMethodsStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -13,11 +19,16 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
   const status = ref<PaymentMethodsStatus>('idle');
   const error = ref<string | null>(null);
   const updatingIds = ref<string[]>([]);
+  const saving = ref(false);
 
   const isLoading = computed(() => status.value === 'loading');
 
   function isUpdating(id: string): boolean {
     return updatingIds.value.includes(id);
+  }
+
+  function errorMessage(err: unknown, fallback: string): string {
+    return err instanceof Error ? err.message : fallback;
   }
 
   async function fetchPaymentMethods(query: PaymentMethodsQuery): Promise<void> {
@@ -31,13 +42,76 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
       status.value = 'success';
     } catch (err) {
       status.value = 'error';
-      error.value = err instanceof Error ? err.message : 'Error al cargar los métodos de pago.';
+      error.value = errorMessage(err, 'Error al cargar los métodos de pago.');
 
       Notify.create({
         type: 'negative',
         message: error.value,
         position: 'top',
       });
+    }
+  }
+
+  async function fetchPaymentMethodById(id: string): Promise<PaymentMethod | null> {
+    try {
+      return await fetchPaymentMethodByIdRequest(id);
+    } catch (err) {
+      const message = errorMessage(err, 'Error al cargar el método de pago.');
+
+      Notify.create({
+        type: 'negative',
+        message,
+        position: 'top',
+      });
+
+      return null;
+    }
+  }
+
+  async function createPaymentMethod(values: PaymentMethodFormValues): Promise<boolean> {
+    saving.value = true;
+
+    try {
+      await createPaymentMethodRequest(values);
+      saving.value = false;
+      Notify.create({ type: 'positive', message: 'Método de pago creado.' });
+      return true;
+    } catch (err) {
+      saving.value = false;
+      const message = errorMessage(err, 'Error al crear el método de pago.');
+
+      Notify.create({
+        type: 'negative',
+        message,
+        position: 'top',
+      });
+
+      return false;
+    }
+  }
+
+  async function updatePaymentMethod(
+    id: string,
+    values: PaymentMethodFormValues,
+  ): Promise<boolean> {
+    saving.value = true;
+
+    try {
+      await updatePaymentMethodRequest(id, values);
+      saving.value = false;
+      Notify.create({ type: 'positive', message: 'Método de pago actualizado.' });
+      return true;
+    } catch (err) {
+      saving.value = false;
+      const message = errorMessage(err, 'Error al actualizar el método de pago.');
+
+      Notify.create({
+        type: 'negative',
+        message,
+        position: 'top',
+      });
+
+      return false;
     }
   }
 
@@ -57,7 +131,7 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
     } catch (err) {
       method.active = previousActive;
 
-      const message = err instanceof Error ? err.message : 'Error al actualizar el método de pago.';
+      const message = errorMessage(err, 'Error al actualizar el método de pago.');
 
       Notify.create({
         type: 'negative',
@@ -75,9 +149,13 @@ export const usePaymentMethodsStore = defineStore('payment-methods', () => {
     status,
     error,
     updatingIds,
+    saving,
     isLoading,
     isUpdating,
     fetchPaymentMethods,
+    fetchPaymentMethodById,
+    createPaymentMethod,
+    updatePaymentMethod,
     togglePaymentMethod,
   };
 });

@@ -16,6 +16,16 @@ const routes: RouteRecordRaw[] = [
         name: 'payment-methods',
         component: () => import('@/features/payment-methods/pages/PaymentMethodsPage.vue'),
       },
+      {
+        path: 'payment-methods/new',
+        name: 'payment-method-create',
+        component: () => import('@/features/payment-methods/pages/PaymentMethodFormPage.vue'),
+      },
+      {
+        path: 'payment-methods/:id/edit',
+        name: 'payment-method-edit',
+        component: () => import('@/features/payment-methods/pages/PaymentMethodFormPage.vue'),
+      },
     ],
   },
 

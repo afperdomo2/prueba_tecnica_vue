@@ -6,4 +6,11 @@ export interface PaymentMethod {
   type: PaymentMethodType;
   active: boolean;
   createdAt: string;
+  description?: string;
+}
+
+export interface PaymentMethodFormValues {
+  name: string;
+  type: PaymentMethodType;
+  description?: string;
 }
